@@ -4,8 +4,12 @@ import * as path from 'path'
 import * as crypto from 'crypto'
 import * as bytes from 'bytes'
 import * as fs2 from 'fs' // fs.d messed up for overloaded readdir by microsoft for promisify
-const readdir = util.promisify(fs2.readdir)
-const fsstat = util.promisify(fs2.stat)
+const readdir = util.promisify(fs2.readdir);
+const fsstat = util.promisify(fs2.stat);
+
+// todo..
+// Will add throttling so we dont blow open handles, kill system and perhaps add more order rather than depending on promises
+// Would be great ifr we could go multi process.
 
 import * as program from 'commander'; // 'commander');
 
@@ -28,22 +32,22 @@ program
     .parse(process.argv);
 
 
-const md5File = (filename: fs2.PathLike): Promise<String>  => {   
+const md5File = (filename: fs2.PathLike): Promise<String>  => {
     return new Promise(  (resolve, reject) => {
-        const output = crypto.createHash('md5')
-        const input = fs2.createReadStream(filename)
-        
+        const output = crypto.createHash('md5');
+        const input = fs2.createReadStream(filename);
+
         input.on('error', function (err) {
             reject(err)
-        })
-        
+        });
+
         output.once('readable', function () {
             resolve(output.read().toString('hex'))
-        })
-        
+        });
+
         input.pipe(output)
     })
-}
+};
 
 const getDirectory = async (path_in: string) => {
     const files = await readdir(path_in, { withFileTypes: true });
@@ -61,7 +65,7 @@ const getDirectory = async (path_in: string) => {
             console.log('%s is a file', dirent.name);
             filecount++;
 
-            // Calc MD5 and add to filemap          
+            // Calc MD5 and add to filemap
             const md5 = await md5File(fullname);
             const stat = await fsstat(fullname);
             const { size } = stat;
