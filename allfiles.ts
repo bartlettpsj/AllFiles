@@ -83,7 +83,7 @@ const getDirectory = async (path_in: string) => {
 const monitor = () => {
     const timer = setInterval( () => {
         if (!running && filecount == fileprocess) {
-            console.log('Done after processing %d files total size %s', filecount, bytes(bytecount));
+            console.log('DONE: after processing %d files total size %s', filecount, bytes(bytecount));
             clearInterval(timer);
         }
     }, 1000);
